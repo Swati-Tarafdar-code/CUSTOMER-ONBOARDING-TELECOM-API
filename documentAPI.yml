@@ -1,0 +1,174 @@
+openapi: 3.0.3
+info:
+  title: Customer Onboarding API
+  version: 1.0.0
+servers:
+  - url: http://localhost:5000
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    User:
+      type: object
+      properties:
+        user_id: integer
+        username: string
+        email: string
+        role: string
+        created_at: string
+    AuthRequest:
+      type: object
+      required: [email,password]
+      properties:
+        email: string
+        password: string
+    AuthResponse:
+      type: object
+      properties:
+        message: string
+        token: string
+    RoleUpdate:
+      type: object
+      required: [role]
+      properties:
+        role: string
+    DocumentUploadResponse:
+      type: object
+      properties:
+        message: string
+        documentId: integer
+        fileUrl: string
+paths:
+  /api/auth/signup:
+    post:
+      summary: Register user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username,email,password]
+              properties:
+                username: string
+                email: string
+                password: string
+                role:
+                  type: string
+      responses:
+        '201':
+          description: Registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+  /api/auth/login:
+    post:
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequest'
+      responses:
+        '200':
+          description: Login success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+  /api/users:
+    get:
+      summary: Get all users (admin)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+  /api/users/{userId}/role:
+    put:
+      summary: Update user role (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleUpdate'
+      responses:
+        '200':
+          description: updated
+  /api/users/{userId}:
+    delete:
+      summary: Delete user (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: deleted
+  /api/documents/upload:
+    post:
+      summary: Upload document (authenticated)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentUploadResponse'
+  /api/extracted_data/{documentId}/ocr:
+    post:
+      summary: Run OCR and save extracted text
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OCR completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: string
+                  text: string
