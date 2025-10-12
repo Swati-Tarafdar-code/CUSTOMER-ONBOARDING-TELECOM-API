@@ -1,5 +1,4 @@
 node_modules/
 package-lock.json
-# Environment variables
 .env
 customer-onboarding-471016-2b7bcff779b8.json
