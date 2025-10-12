@@ -45,9 +45,6 @@ export const getPendingUsers = async (req, res, next) => {
               LEFT JOIN documents d ON u.user_id = d.user_id
               WHERE d.status = 'PENDING_REVIEW';
               `
-      // `SELECT user_id, username, email, role, status, created_at 
-      //  FROM users 
-      //  WHERE status = 'PENDING_REVIEW'`
     );
     res.json(result.rows);
   } catch (err) {
@@ -79,13 +76,30 @@ export const getUserDetails = async (req, res, next) => {
     if (result.rows.length === 0) {
       return res.status(404).json({ message: 'User not found' });
     }
-    res.json(result.rows[0]);
+    // Aggregate user info and documents
+    const userInfo = {
+      user_id: result.rows[0].user_id,
+      username: result.rows[0].username,
+      email: result.rows[0].email,
+      role: result.rows[0].role,
+      created_at: result.rows[0].created_at,
+      documents: result.rows
+        .filter(row => row.document_id !== null)
+        .map(row => ({
+          document_id: row.document_id,
+          document_type: row.document_type,
+          file_path: row.file_path,
+          extracted_data: row.extracted_data,
+          status: row.status
+        }))
+    };
+    res.json(userInfo);
   } catch (err) {
     next(err);
   }
 };
 
-// Update user status (APPROVED or Rejected)
+// Update user status (APPROVED or REJECTED)
 export const updateUserStatus = async (req, res, next) => {
   try {
     const { userId } = req.params;
