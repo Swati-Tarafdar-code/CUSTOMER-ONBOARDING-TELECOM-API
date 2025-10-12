@@ -26,5 +26,20 @@ app.use('/api/audit', auditRoutes);
 // Error Handler
 app.use(errorHandler);
 
+// // Test route to verify database connection
+// import pool from "./dbConnect.js";
+// app.get("/test-db", async (req, res) => {
+//   try {
+//     const result = await pool.query("SELECT NOW()");
+//     res.json({ message: "Connected to Neon PostgreSQL!", time: result.rows[0].now });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ error: "Database connection failed" });
+//   }
+// });
+
+// app.listen(3000, () => console.log("Server running on port 3000"));
+
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Customer Onboarding Server running on port ${PORT}`));
