@@ -103,7 +103,7 @@ export const getUserDetails = async (req, res, next) => {
 export const updateUserStatus = async (req, res, next) => {
   try {
     const { userId } = req.params;
-    const { status } = req.body; // expected 'APPROVED' or 'REJECTED'
+    const { status } = req.body; // expected  'APPROVED' or 'REJECTED'
 
     if (!['APPROVED', 'REJECTED'].includes(status)) {
       return res.status(400).json({ message: 'Invalid status' });
