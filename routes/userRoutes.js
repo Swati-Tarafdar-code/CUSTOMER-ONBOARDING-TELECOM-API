@@ -1,11 +1,14 @@
 import express from 'express';
-import { getUsers, updateUserRole, deleteUser } from '../controllers/userController.js';
+import { getUsers, updateUserRole, deleteUser, getPendingUsers, getUserDetails, updateUserStatus  } from '../controllers/userController.js';
 import { protect, adminOnly } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
 router.get('/', protect, adminOnly, getUsers);
 router.put('/:userId/role', protect, adminOnly, updateUserRole);
-router.delete('/:userId', protect, adminOnly, deleteUser);
+router.delete('/:userId/delete', protect, adminOnly, deleteUser);
+router.get('/pending', getPendingUsers);         //  Get pending users
+router.get('/:userId/details', getUserDetails);  // Get detailed info for one user
+router.put('/:userId/status', updateUserStatus); // Update status (Approved/Rejected)
 
 export default router;
