@@ -52,7 +52,7 @@ export const getPendingUsers = async (req, res, next) => {
   }
 };
 
-// Get user details + extracted/classified document info
+// Get user details + extracted/classified  document info
 export const getUserDetails = async (req, res, next) => {
   try {
     const { userId } = req.params;
