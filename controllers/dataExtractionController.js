@@ -1,6 +1,7 @@
 import pool from '../dbConnect.js';
 import { extractTextFromS3Image } from '../services/visionAIService.js';
 import { classifyDocument } from '../services/documentClassificationService.js';
+import { extractFieldsFromDocument } from "../services/documentAIService.js";
 
 export const ocrDocument = async (req, res, next) => {
   try {
@@ -25,12 +26,37 @@ export const ocrDocument = async (req, res, next) => {
     // Save to DB
     await pool.query('UPDATE documents SET extracted_data = $1, document_type = $2 WHERE document_id = $3', [JSON.stringify({ content: extractedText }), documentType, documentId]);
 
+    // 5️⃣ Field extraction using Google Document AI
+    const projectId = process.env.GCLOUD_PROJECT_ID;
+    const location = "us";
+    const processorId = process.env.GCLOUD_DOC_AI_PROCESSOR_ID;
+
+    let fields = { name: null, address: null, dob: null };
+    try {
+      fields = await extractFieldsFromDocument(bucket, key, processorId, projectId, location);
+      console.log('Document AI fields:', fields);
+    } catch (err) {
+      console.error('Document AI extraction failed, continuing without structured fields:', err.message ?? err);
+      // continue execution; extractedText and documentType already saved
+    }
+
+// 6️⃣ Insert into user_data table only if we have a user and at least one extracted field
+    if (userId && (fields.name || fields.address || fields.dob)) {
+      await pool.query(
+        `INSERT INTO user_data (user_id, document_id, name, address, dob)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [userId, documentId, fields.name, fields.address, fields.dob]
+      );
+    } else {
+      console.log('Skipping user_data insert: missing userId or no extracted fields');
+    }
+
     // Return response
     res.status(200).json({
       message: 'OCR and classification completed successfully',
       documentId,
       documentType,
-      extractedText,
+      extractedFields: fields,
     });
   } catch (err) {
     console.error('Error in OCR/classification:', err);
