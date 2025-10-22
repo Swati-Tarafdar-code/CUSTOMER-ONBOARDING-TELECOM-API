@@ -9,10 +9,12 @@ export const ocrDocument = async (req, res, next) => {
     const bucket = process.env.S3_BUCKET_NAME; // or S3_BUCKET_NAME
 
     // Get document info from DB
-    const result = await pool.query('SELECT file_name FROM documents WHERE document_id = $1', [documentId]);
+    const result = await pool.query('SELECT file_name, user_id  FROM documents WHERE document_id = $1', [documentId]);
     if (result.rows.length === 0) {
       return res.status(404).json({ message: 'Document not found' });
     }
+
+    const { file_name, user_id: userId } = result.rows[0];
     const key = result.rows[0].file_name.replace(/^uploads\//, ''); // adjust if needed
 
     // Extract text
@@ -47,6 +49,7 @@ export const ocrDocument = async (req, res, next) => {
          VALUES ($1, $2, $3, $4, $5)`,
         [userId, documentId, fields.name, fields.address, fields.dob]
       );
+      console.log(`Inserted user_data for userId: ${userId}`);
     } else {
       console.log('Skipping user_data insert: missing userId or no extracted fields');
     }
@@ -56,6 +59,7 @@ export const ocrDocument = async (req, res, next) => {
       message: 'OCR and classification completed successfully',
       documentId,
       documentType,
+      fulltext: extractedText,
       extractedFields: fields,
     });
   } catch (err) {
