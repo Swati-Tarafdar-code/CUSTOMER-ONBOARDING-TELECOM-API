@@ -1,4 +1,5 @@
 import express from 'express';
+import helmet from 'helmet';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import bodyParser from 'body-parser';
@@ -11,6 +12,17 @@ import { errorHandler } from './middleware/errorMiddleware.js';
 
 dotenv.config();
 const app = express();
+
+// Use Helmet to set security headers automatically, including X-Content-Type-Options
+app.use(helmet());
+
+// Add Cache-Control header to all responses (here disabling caching as example)
+app.use((req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache'); // for HTTP/1.0 backward compatibility
+  res.setHeader('Expires', '0');
+  next();
+});
 
 app.use(cors());
 app.use(bodyParser.json());
