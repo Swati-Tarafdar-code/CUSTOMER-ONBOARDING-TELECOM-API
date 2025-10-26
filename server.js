@@ -13,6 +13,11 @@ import { errorHandler } from './middleware/errorMiddleware.js';
 dotenv.config();
 const app = express();
 
+  cors({
+    origin: "http://localhost:3000", // your frontend URL
+    credentials: true, // if using cookies or Authorization headers
+  })
+
 // Use Helmet to set security headers automatically, including X-Content-Type-Options
 app.use(helmet());
 

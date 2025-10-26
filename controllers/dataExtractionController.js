@@ -28,7 +28,7 @@ export const ocrDocument = async (req, res, next) => {
     // Save to DB
     await pool.query('UPDATE documents SET extracted_data = $1, document_type = $2 WHERE document_id = $3', [JSON.stringify({ content: extractedText }), documentType, documentId]);
 
-    // 5️⃣ Field extraction using Google Document AI
+    //  Field extraction using Google Document AI
     const projectId = process.env.GCLOUD_PROJECT_ID;
     const location = "us";
     const processorId = process.env.GCLOUD_DOC_AI_PROCESSOR_ID;
@@ -42,7 +42,7 @@ export const ocrDocument = async (req, res, next) => {
       // continue execution; extractedText and documentType already saved
     }
 
-// 6️⃣ Insert into user_data table only if we have a user and at least one extracted field
+//  Insert into user_data table only if we have a user and at least one extracted field
     if (userId && (fields.name || fields.address || fields.dob)) {
       await pool.query(
         `INSERT INTO user_data (user_id, document_id, name, address, dob)
