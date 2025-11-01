@@ -7,7 +7,7 @@ const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: '7d' });
 };
 
-// @desc    Register new user
+//  Register new user
 export const registerUser = async (req, res, next) => {
   try {
     const { username, email, password, role } = req.body;
@@ -42,7 +42,7 @@ export const registerUser = async (req, res, next) => {
   }
 };
 
-// @desc    Login user
+//  Login user
 export const loginUser = async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -65,7 +65,7 @@ export const loginUser = async (req, res, next) => {
   }
 };
 
-// @desc    Get current logged-in user
+// Get current logged-in user
 export const getMe = async (req, res, next) => {
   try {
     const result = await pool.query(

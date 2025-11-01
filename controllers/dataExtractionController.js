@@ -2,6 +2,7 @@ import pool from '../dbConnect.js';
 import { extractTextFromS3Image } from '../services/visionAIService.js';
 import { classifyDocument } from '../services/documentClassificationService.js';
 import { extractFieldsFromDocument } from "../services/documentAIService.js";
+import { convertToISODate } from "../utils/convertToISODate.js";
 
 export const ocrDocument = async (req, res, next) => {
   try {
@@ -43,11 +44,13 @@ export const ocrDocument = async (req, res, next) => {
     }
 
 //  Insert into user_data table only if we have a user and at least one extracted field
+const dobISO = convertToISODate(fields.dob);
+
     if (userId && (fields.name || fields.address || fields.dob)) {
       await pool.query(
         `INSERT INTO user_data (user_id, document_id, name, address, dob)
          VALUES ($1, $2, $3, $4, $5)`,
-        [userId, documentId, fields.name, fields.address, fields.dob]
+        [userId, documentId, fields.name, fields.address, dobISO]
       );
       console.log(`Inserted user_data for userId: ${userId}`);
     } else {
