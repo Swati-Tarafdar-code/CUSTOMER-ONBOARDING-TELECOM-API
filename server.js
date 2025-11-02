@@ -9,6 +9,28 @@ import documentRoutes from './routes/documentRoutes.js';
 import dataExtractionRoutes from './routes/dataExtractionRoutes.js';
 import auditRoutes from './routes/auditRoutes.js';
 import { errorHandler } from './middleware/errorMiddleware.js';
+import fs from "fs";
+import path from "path";
+import os from "os";
+
+if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+  // Decode Base64-encoded JSON from env var
+  const decoded = Buffer.from(
+    process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON,
+    "base64"
+  ).toString("utf-8");
+
+  // Cross-platform temporary path
+  const filePath = path.join(os.tmpdir(), "service-account.json");
+
+  // Write credentials file
+  fs.writeFileSync(filePath, decoded);
+
+  // Point Google SDKs to it
+  process.env.GOOGLE_APPLICATION_CREDENTIALS = filePath;
+
+  console.log("✅ Google credentials ready at:", filePath);
+}
 
 dotenv.config();
 const app = express();
