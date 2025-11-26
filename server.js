@@ -9,6 +9,8 @@ import documentRoutes from './routes/documentRoutes.js';
 import dataExtractionRoutes from './routes/dataExtractionRoutes.js';
 import auditRoutes from './routes/auditRoutes.js';
 import { errorHandler } from './middleware/errorMiddleware.js';
+
+// Google credential base64 decoding-convert to json file
 import fs from "fs";
 import path from "path";
 import os from "os";
@@ -31,6 +33,7 @@ if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
 
   console.log("✅ Google credentials ready at:", filePath);
 }
+// Google credential base64 decoding-convert to json file ends here
 
 dotenv.config();
 const app = express();
