@@ -184,6 +184,7 @@ export const updateUserStatus = async (req, res, next) => {
   try {
     const { userId } = req.params;
     const { status } = req.body; // Expected 'APPROVED' or 'REJECTED'
+    const { comment } = req.body;
 
     if (!["APPROVED", "REJECTED"].includes(status)) {
       return res.status(400).json({ message: "Invalid status" });
@@ -191,8 +192,8 @@ export const updateUserStatus = async (req, res, next) => {
 
     // Update status in users table
     await pool.query(
-      "UPDATE users SET status = $1 WHERE user_id = $2",
-      [status, userId]
+      "UPDATE users SET status = $1, reviewer_comment = $3 WHERE user_id = $2",
+      [status, userId, comment]
     );
 
     res.json({ message: `User status updated to ${status}` });
