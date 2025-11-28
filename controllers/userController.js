@@ -12,6 +12,7 @@ export const getOwnStatus = async (req, res, next) => {
         u.email,
         u.role,
         u.status,          -- comes from users table now
+        u.reviewer_comment,
         u.created_at,
         d.document_id,
         d.document_type,
@@ -40,6 +41,7 @@ export const getOwnStatus = async (req, res, next) => {
       email: result.rows[0].email,
       role: result.rows[0].role,
       status: result.rows[0].status, // ✅ overall user approval/rejection/pending
+      reviewer_comment: result.rows[0].reviewer_comment,
       created_at: result.rows[0].created_at,
       documents: result.rows
         .filter((row) => row.document_id)
